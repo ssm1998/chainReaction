@@ -2,6 +2,16 @@
 import pygame, sys
 from math import *
 
+"""A strategy game for 2 to 8 players.
+
+The objective of Chain Reaction is to take control of the board by eliminating your opponents' atoms.
+
+Players take it in turns to place their atoms in a cell. Once a cell has reached critical mass the atoms
+explode into the surrounding cells adding an extra orb and claiming the cell for the player. A player 
+may only place their atoms in a blank cell or a cell that contains atoms of their own colour. As soon as
+a player looses all their atoms they are out of the game.
+"""
+
 #Initializing pygame
 pygame.init()
 
@@ -31,15 +41,18 @@ yellow = ( 240, 255,  97)
 green  = (  88, 214, 141)
 pink   = ( 255,   0, 127)
 
+#A dictionary with tuple values as key and respective strings as values 
+totalPlayerDict = {red:'red', blue:'blue', orange:'orange', violet:'violet', yellow:'yellow', green:'green', pink:'pink', blue2:'blue2'}
 players = [red, blue, orange, violet, yellow, green, pink, blue2]
+playerDict = {} #A temporary game dictionary for the current players
 
 blockSize = 100
-noOfPlayers = 0
-noOfPlayers1 = noOfPlayers
-atomsOfPlayers = []
-playerList = []
+noOfPlayers = 0             #Current number of players will be updated in this variable
+noOfPlayers1 = noOfPlayers  #Temporary current number of players will be updated in this variable
+atomsOfPlayers = []         #Numberof atoms of eachplayer has will be updated in this list
+playerList = []             #Current players will be updated in this list
 count = 0
-d = blockSize/2 - 2  #Vibration constant
+d = blockSize/2 - 2         #Vibration constant
 
 cols = width/blockSize
 rows = height/blockSize
@@ -65,7 +78,8 @@ def close():
         pygame.quit()
         sys.exit()
 
-class Cell():
+class Cell:
+        """This will create objects for each cell present in the grid"""
         def __init__(self):
                 self.color = color2
                 self.neighbours = []
@@ -82,7 +96,8 @@ class Cell():
                         self.neighbours.append(grid[i][j + 1])
 
 def initializeGrid():
-        global grid, atomsOfPlayers, playerList
+        """Initalizing everything"""
+        global grid, atomsOfPlayers, playerList, playerDict
         grid = [[0,0,0,0,0,0],
                 [0,0,0,0,0,0],
                 [0,0,0,0,0,0],
@@ -99,6 +114,7 @@ def initializeGrid():
         playerList = []
         for player in range(noOfPlayers):
                 playerList.append(players[player])
+                playerDict[players[player]] = totalPlayerDict[players[player]]
 
         for row in range(rows):
                 for col in range(cols):
@@ -109,6 +125,8 @@ def initializeGrid():
                         grid[row][col].addNeighbours(row,col)
 
 def drawGrid(currentPlayer):
+        """Drawing grids for respective players, according to their turn.
+           The color of the grid will show which player's turn it will be."""
         global playerList, noOfPlayers, players
         row = 0
         col = 0
@@ -119,6 +137,7 @@ def drawGrid(currentPlayer):
                 pygame.draw.line(gameDisplay, playerList[currentPlayer], (0, row), (width, row))
 
 def showPresentGrid(vibrate = 1):
+        """This will draw the atoms as per the game proceeds"""
         r = -blockSize
         c = -blockSize
         for i in range(rows):
@@ -148,6 +167,7 @@ def showPresentGrid(vibrate = 1):
         pygame.display.flip()
 
 def addAtom(i, j, color):
+        """Whenever the player clicks, it adds atom to the cell(if possible)"""
         grid[i][j].noOfAtoms += 1
         grid[i][j].color = color
         if grid[i][j].noOfAtoms >= len(grid[i][j].neighbours):
@@ -163,6 +183,7 @@ def checkBurst(cell, color):
                         checkBurst(cell.neighbours[n], color)
 
 def isPlayerInGame():
+        """This updates the atoms of each player in the atomsOfPlayers list"""
         global atomsOfPlayers, playerList
         playerAtom = []
         for _ in range(noOfPlayers):
@@ -174,7 +195,8 @@ def isPlayerInGame():
                                         playerAtom[player] += grid[row][col].noOfAtoms
         atomsOfPlayers = playerAtom[:]
 
-def gameOver(playerIndex):
+def gameOver(player):
+        """Will end the game, if player wins"""
         while True:
                 for event in pygame.event.get():
                         if event.type == pygame.QUIT:
@@ -185,7 +207,7 @@ def gameOver(playerIndex):
                                 if event.key == pygame.K_r:
                                         startGame()
 
-                text = font.render("Player %d Won!" % (playerIndex + 1), True, white)
+                text = font.render("Player %s Won!" % playerDict[player], True, white)
                 text2 = font.render("Press \'r\' to Reset!", True, white)
                 text3 = font.render("Press \'q\' to Quit!", True, white)
 
@@ -197,21 +219,22 @@ def gameOver(playerIndex):
                 fpsClock.tick(FPS2)
 
 def checkWin():
-        global playerList, noOfPlayers, atomsOfPlayers, noOfPlayers1
-        zeroPlayer = 0
+        """Checks which player wins"""
+        global playerList, noOfPlayers, atomsOfPlayers, noOfPlayers1, playerDict
+        zeroPlayer = 0  #number of players whose atoms are zero.
         temp = atomsOfPlayers[:]
         for player in range(len(playerList)):
                 if atomsOfPlayers[player] == 0:
                         zeroPlayer += 1
                         try:
-                                playerList.pop(player)
+                                playerDict.pop(playerList.pop(player))
                                 temp.pop(player)
                                 noOfPlayers1 = len(playerList)
                         except :pass
         if zeroPlayer == noOfPlayers - 1:
                 for player in range(len(playerList)):
                         if atomsOfPlayers[player]:
-                                return player
+                                return playerList[player]
         atomsOfPlayers = temp
         noOfPlayers = noOfPlayers1
 
@@ -266,7 +289,7 @@ def startGame():
 
 
 def gameLoop():
-        global count, noOfPlayers, playerList
+        global count, noOfPlayers, playerList, playerDict
         initializeGrid()
 
         turns = 0
@@ -317,3 +340,4 @@ def gameLoop():
                 fpsClock.tick(FPS1)
 
 startGame()
+
