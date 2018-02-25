@@ -1,27 +1,3 @@
-"""Rules of the Game
-I will be describing the rules of the two-player (Red and Green) game but this can be generalized to any number of players.
-
-The gameplay takes place in an  board. The most commonly used size of the board is .
-For each cell in the board, we define a critical mass. The critical mass is equal to the number of orthogonally adjacent cells. That would be 4 for usual cells, 3 for cells in the edge and 2 for cells in the corner.
-All cells are initially empty. The Red and the Green player take turns to place "orbs" of their corresponding colors. The Red player can only place an (red) orb in an empty cell or a cell which already contains one or more red orbs. When two or more orbs are placed in the same cell, they stack up.
-When a cell is loaded with a number of orbs equal to its critical mass, the stack immediately explodes. As a result of the explosion, to each of the orthogonally adjacent cells, an orb is added and the initial cell looses as many orbs as its critical mass. The explosions might result in overloading of an adjacent cell and the chain reaction of explosion continues until every cell is stable.
-When a red cell explodes and there are green cells around, the green cells are converted to red and the other rules of explosions still follow. The same rule is applicable for other colors.
-The winner is the one who eliminates every other player's orbs.
-Here is a video showing the rules in action.
-
-And, this is a possible implementation of the move making algorithm.
-Heuristic Strategy
-In this section, we develop a way to evaluate the value of a board using heuristics that expert players have gathered through their experience. Like any other complex combinatorial games, the heuristic value is not guaranteed to be an indicative of a dominant strategy but usually it turns out to be so.
-
-We shall call a cell critical if the number of orbs in the cell is equal to one less than its critical mass.
-
-If the board is a won game, the value is 10000.
-If the board is a lost game, the value is -10000.
-For every orb, for every enemy critical cell surrounding the orb, subtract 5 minus the critical mass of that cell from the value.
-In case that the orb has no critical enemy cells in its adjacent cells at all, add 2 to the value if it is an edge cell or 3 if it is a corner cell.
-In case that the orb has no critical enemy cells in its adjacent cells at all, add 2 to the value if the cell is critical.
-For every orb of the player's color, add 1 to the value.
-For every contiguous blocks of critical cells of the player's color, add twice the number of cells in the block to the score."""
 print """Chain Reaction
 This program is the logic behind the game of chain reaction. The GUI version i.e. game.py implements 
 the pygame version."""
